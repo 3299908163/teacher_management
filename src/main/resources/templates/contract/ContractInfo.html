@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>专业技术职务信息</title>
+    <script src="/js/const/jquery-3.3.1.js"></script>
+    <script src="/layui/layui.all.js"></script>
+    <link rel="stylesheet" href="/layui/css/layui.css" media="all">
+</head>
+
+<table id="demo" lay-filter="test">
+
+</table>
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container" id="layerDemo">
+        <button class="layui-btn layui-btn-sm" lay-event="getCheckAddData">新增合同</button>
+        <button class="layui-btn layui-btn-sm" lay-event="getCheckData">修改合同</button>
+        <button class="layui-btn layui-btn-sm" data-type="getCheckLength" lay-event="getCheckLength">删除信息（点击复选框进行删除）</button>
+    </div>
+</script>
+<script>
+    $(function () {
+        loadData();
+    })
+    function loadData(){
+        layui.use('table',function(){
+            var table = layui.table;
+            //第一个实例
+            table.render({
+                elem: '#demo'
+                ,height: 'full'
+                ,url: '/contract/contractList'         //数据接口
+                //    ,edit: 'text'
+                ,page: {     //支持传入layuipage组件的所有参数
+                    layout: ['count', 'prev', 'page', 'next', 'limit', 'refresh', 'skip']//自定义分页布局
+                    , limits: [5, 10, 15]
+                    , first: false //不显示首页
+                    , last: false //不显示尾页
+                }
+                ,toolbar:"#toolbarDemo"
+                ,cols: [[ //表头
+                    {type:'checkbox',fixed: 'left'}
+                    ,{field: 'contractId', title: 'ID',  sort: true}
+                    ,{field: 'contractName', title: '合同名'}
+                ]]
+            });
+
+            //头工具栏事件
+            table.on('toolbar(test)', function(obj){
+                var checkStatus = table.checkStatus(obj.config.id);
+                switch(obj.event) {
+
+                    case 'getCheckAddData':
+                        var open = layer.open({
+                            type: 1,
+                            // time: 20000,
+                            skin: 'layui-layer-rim', //加上边框
+                            area: ['600px', '500px'], //宽高
+
+                            content: '<form class="layui-form form" style="margin-left: 100px" id="form">  <div class="layui-form-item">\n' +
+                                '    <div class="layui-input-inline" style="margin-left: 130px"><label class="layui-form-label">用户信息</label></div>\n' +
+                                //      合同名
+                                '  <div class="layui-form-item" style="margin-right: 150px">\n' +
+                                '    <label class="layui-form-label">合同名</label>\n' +
+                                '    <div class="layui-input-block">\n' +
+                                '      <input type="text" name="contractName" id="contractName" required  lay-verify="required" placeholder="请输入合同名" autocomplete="off" class="layui-input">\n' +
+                                '    </div>\n' +
+                                '  </div>' +
+                                '<div class="layui-form-item" style="margin-right: 150px">\n' +
+                                '<div>' +
+                                ' <div class="layui-input-inline" style="margin-left: 120px"><input type="button" value="添加" class="layui-btn layui-btn-primary" style="margin: 50px" id="submit"></div> </div>' +
+                                '</form>'
+                        });
+                        //新增点击事件
+                        $("#submit").click(function () {
+                            var contractName = $("#contractName").val();
+                            $.getJSON("/contract/isHaveContractName", "contractName=" + contractName, function (data) {
+                                if (data != null) {
+                                    if (data.toString() == "true") {    //合同名存在
+                                        layer.msg("合同名已存在！");
+                                        $("#contractName").val("");
+                                        return false;
+                                    } else {
+                                        if (contractName == "" || contractName == null) {
+                                            layer.msg("合同名不能为空！");
+                                            return false;
+                                        } else {
+                                            layer.close(open);
+                                            $.getJSON("/contract/addContract", "contractName=" + contractName,
+                                                function (data) {
+                                                    if (data.toString() == "true") {
+                                                        alert("添加成功");
+                                                        $("#content").load("/intoContractInfo", function (data) {
+                                                            if (eval('(' + data + ')').Code.toString() == "600") {
+                                                                window.location = "/user/toErrorLogin";
+                                                                return;
+                                                            }
+                                                            layui.use('element', function () {
+                                                                var element = layui.element;
+                                                            });
+                                                        });
+                                                    } else {
+                                                        alert("添加失败！");
+                                                        return false;
+                                                    }
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+                            })
+                        });
+                        break;
+
+                    // 修改功能，对应上个script中的lay-event
+                    case 'getCheckData':
+                        var data = checkStatus.data;
+                        var one = table.checkStatus("demo");
+                        var two = one.data;
+                        if (two.length == 0) {
+                            layer.msg("请先选择一位用户！");
+                            return false;
+                        }else if(two.length>1){
+                            layer.msg("修改只能选择一个用户！");
+                            return false
+                        }
+                        var contractId;
+                        var contractName;
+                        for (var i = 0; i < two.length; i++) {
+                            contractId = two[i].contractId;
+                            contractName = two[i].contractName;
+                        }
+
+                        var open = layer.open({
+                            type: 1,
+                            // time: 20000,
+                            skin: 'layui-layer-rim', //加上边框
+                            area: ['600px', '500px'], //宽高
+
+                            content: '<form class="layui-form form" style="margin-left: 100px" id="form">  <div class="layui-form-item">\n' +
+                                '    <div class="layui-input-inline" style="margin-left: 130px"><label class="layui-form-label">用户信息</label></div>\n' +
+                                //     合同编号
+                                '  <div class="layui-form-item" style="margin-right: 150px">\n' +
+                                '    <label class="layui-form-label">合同编号</label>\n' +
+                                '    <div class="layui-input-block">\n' +
+                                '      <input type="text" name="contractId" id="contractId" value="' + contractId + '" required  lay-verify="required" placeholder="请输入合同编号" autocomplete="off" class="layui-input" disabled>\n' +
+                                '    </div>\n' +
+                                '  </div>' +
+                                //      合同名
+                                '  <div class="layui-form-item" style="margin-right: 150px">\n' +
+                                '    <label class="layui-form-label">合同名</label>\n' +
+                                '    <div class="layui-input-block">\n' +
+                                '      <input type="text" name="contractName" id="contractName" value="' + contractName + '" required  lay-verify="required" placeholder="请输入合同名" autocomplete="off" class="layui-input">\n' +
+                                '    </div>\n' +
+                                '  </div>' +
+                                ' <div class="layui-input-inline" style="margin-left: 120px"><input type="button" value="修改" class="layui-btn layui-btn-primary" style="margin: 50px" id="submit"></div> </div>' +
+                                '</form>'
+                        });
+                        //合同名失去焦点
+                        $("#contractName").blur(function () {
+                            var contractName = $(this).val();
+                            isHaveContractName(contractName);
+
+                        });
+
+                        //判断合同名存在 函数
+                    function isHaveContractName(contractName) {
+                        $.getJSON("/contract/isHaveContractName", "contractName=" + contractName, function (data) {
+                            if (data != null) {
+                                if (data.toString() == "true") {   //合同名存在
+                                    alert("合同名存在！");
+                                    return false;
+                                }
+                            }
+                        });
+                    }
+
+                        //修改点击事件
+                        $("#submit").click(function () {
+                            var contractId = $("#contractId").val();
+                            var contractName = $("#contractName").val();
+                            if (contractName == "" || contractName == null) {
+                                layer.msg("合同名不能为空！！");
+                                return false;
+                            } else {
+                                // alert("触发修改");
+                                layer.close(open);
+                                $.getJSON("/contract/updateContract", "contractId=" + contractId + "&contractName=" + contractName, function (data) {
+                                    if (data != null) {
+                                        if (data.toString() == "true") {
+                                            layer.alert("修改成功！！");
+                                            educationId = 0;
+                                            layer.close(open);
+                                            //刷新页面
+                                            $("#content").load("/intoContractInfo", function () {
+                                                layui.use('element', function () {
+                                                    var element = layui.element;
+                                                });
+                                            });
+                                        } else {
+                                            layer.alert("修改失败！！");
+                                        }
+
+                                    }
+                                })
+                            }
+                        });
+
+
+                        break;
+                    case
+                    'getCheckLength'
+                    :
+                        var data = checkStatus.data;
+                        var list = new Array();
+                        for (var i = 0; i < data.length; i++) {
+                            list[i] = data[i].contractId
+                        }
+                        if (list.length == 0) {
+                            layer.msg("请先选择一位用户！");
+                            return false;
+                        } else {
+                            layer.confirm('真的要删除吗？', function (index) {
+                                $.getJSON("/contract/delContract?list=" + list, function (data) {
+                                    if (data.toString() == "true") {
+                                        layer.msg("删除成功！！");
+                                        $("#content").load("/intoContractInfo", function (data) {
+                                            if (eval('(' + data + ')').Code.toString() == "600") {
+                                                window.location = "/user/toErrorLogin";
+                                                return;
+                                            }
+                                            layui.use('element', function () {
+                                                var element = layui.element;
+                                            });
+                                        });
+                                    }
+                                });
+                            });
+                        }
+                        ;
+                };
+            });
+
+        });
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>
+        添加学生
+    </title>
+    <link rel="stylesheet" type="text/css" href="/css/const/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="/css/login.css" />
+</head>
+<script src="/js/const/vue.js" type="text/javascript" charset="utf-8"></script>
+<script src="/js/const/vue-resource.js" type="text/javascript" charset="utf-8"></script>
+<script src="/js/const/jquery-3.3.1.js" type="text/javascript" charset="utf-8"></script>
+<!--<script src="/js/const/user.js"></script>-->
+<!--<script src="/layui/layui.all.js"></script>-->
+<body class="login-bg">
+<div id="app">
+    <div class="login">
+        <form>
+            <select ref="userSex">
+                <option value="-1">请选择性别</option>
+                <option value="0">
+                    男
+                </option>
+                <option value="1">
+                    女
+                </option>
+            </select>
+            <select ref="subject">
+                <option value="0">请选择任教学科</option>
+                <option v-for="item in subjectList" :key="item.subjectId" :value="item.subjectId">
+                    {{item.subjectName}}
+                </option>
+            </select>
+            <div class="form-group pt-3">
+                <lable>身份证号</lable>
+                <input type="text" id="userIdentity" placeholder="身份证号" v-model="userIdentity" class="form-control " @blur="identityBlur($event)" @input="inputChange($event)" ref="userIdentity" AUTOCOMPLETE="off">
+                <div class="invalid-feedback">{{identityMsg}}</div>
+            </div>
+            <div class="form-group pt-3">
+                <lable>姓名</lable>
+                <input type="text" id="userName" placeholder="姓名" v-model="userName" class="form-control" @blur="nameBlur($event)"
+                       ref="userName" @input="inputChange($event)" AUTOCOMPLETE="off">
+                <div class="invalid-feedback">{{nameMsg}}</div>
+            </div>
+            <div class="form-group pt-3">
+                <lable>地址</lable>
+                <input type="text" id="userAddress" placeholder="地址可以不填" v-model="userAddress" class="form-control">
+            </div>
+            <div class="form-group pt-3">
+                <lable>手机号</lable>
+                <input type="text" id="userPhone" placeholder="教师手机号" v-model="userPhone" class="form-control">
+            </div>
+            <div class="form-group pt-3">
+                <lable>出生日期</lable>
+                <input type="date" id="userBirthday" placeholder="教师出生日期" v-model="userBirthday" class="form-control">
+            </div>
+            <div class="form-group pt-3">
+                <lable>入职日期</lable>
+                <input type="date" id="userWorkhours" placeholder="教师入职日期" v-model="userWorkhours" class="form-control">
+            </div>
+            <div class="form-group pt-3">
+                <lable>入党时间</lable>
+                <input type="date" id="userJoinparty" placeholder="教师入党时间" v-model="userJoinparty" class="layui-input">
+            </div>
+            <div class="form-group pt-3">
+                <lable>邮箱</lable>
+                <input type="text" id="userEmail" placeholder="教师邮箱" v-model="userEmail" class="form-control">
+            </div>
+            <select ref="title">
+                <option value="0">请选择职称资格证</option>
+                <option v-for="item in titleList" :key="item.titleId" :value="item.titleId">
+                    {{item.titleName}}
+                </option>
+            </select>
+            <select ref="qualification">
+                <option value="0">请选择教师资格种类</option>
+                <option v-for="item in qualificationList" :key="item.qualificationId" :value="item.qualificationId">
+                    {{item.qualificationName}}
+                </option>
+            </select>
+            <select ref="position">
+                <option value="0">请选择专业技术职务</option>
+                <option v-for="item in positionList" :key="item.positionId" :value="item.positionId">
+                    {{item.positionName}}
+                </option>
+            </select>
+            <div class="form-group pt-3">
+                <lable>职称资格时间</lable>
+                <input type="date" id="titleTime" placeholder="职称资格时间" v-model="titleTime" class="form-control">
+            </div>
+            <select ref="contract">
+                <option value="0">请选择合同</option>
+                <option v-for="item in contractList" :key="item.contractId" :value="item.contractId">
+                    {{item.contractName}}
+                </option>
+            </select>
+            <div class="form-group pt-3">
+                <lable>首聘时间</lable>
+                <input type="date" id="contractStarttime" placeholder="首聘时间" v-model="contractStarttime" class="form-control">
+            </div>
+            <div class="form-group pt-3">
+                <lable>聘任时间</lable>
+                <input type="date" id="contractEndtime" placeholder="聘任时间" v-model="contractEndtime" class="form-control">
+            </div>
+            <div class="form-group pt-3">
+                <lable>第一学历</lable>
+                <input type="text" id="educationFirstName" placeholder="第一学历" v-model="educationFirstName" class="form-control">
+            </div>
+            <div class="form-group pt-3">
+                <lable>第一学历毕业院校</lable>
+                <input type="text" id="educationFirstSchool" placeholder="第一学历毕业院校" v-model="educationFirstSchool" class="form-control">
+            </div>
+            <div class="form-group pt-3">
+                <lable>第一学历所学专业</lable>
+                <input type="text" id="educationFirstProfessionalName" placeholder="第一学历所学专业" v-model="educationFirstProfessionalName" class="form-control">
+            </div>
+            <div class="form-group pt-3">
+                <lable>第一学历毕业时间</lable>
+                <input type="date" id="educationFirstGraduationtime" placeholder="第一学历毕业时间" v-model="educationFirstGraduationtime" class="form-control">
+            </div>
+            <div class="form-group pt-3">
+                <lable>最高学历</lable>
+                <input type="text" id="educationHighestName" placeholder="最高学历" v-model="educationHighestName" class="form-control">
+            </div>
+            <div class="form-group pt-3">
+                <lable>最高学历毕业院校</lable>
+                <input type="text" id="educationHighestSchool" placeholder="最高学历毕业院校" v-model="educationHighestSchool" class="form-control">
+            </div>
+            <div class="form-group pt-3">
+                <lable>最高学历所学专业</lable>
+                <input type="text" id="educationHighestProfessionalName" placeholder="最高学历所学专业" v-model="educationHighestProfessionalName" class="form-control">
+            </div>
+            <div class="form-group pt-3">
+                <lable>最高学历毕业时间</lable>
+                <input type="date" id="educationHighestGraduationtime" placeholder="最高学历毕业时间" v-model="educationHighestGraduationtime" class="form-control">
+            </div>
+            <select ref="degree">
+                <option value="0">请选择学位</option>
+                <option v-for="item in degreeList" :key="item.degreeId" :value="item.degreeId">
+                    {{item.degreeName}}
+                </option>
+            </select>
+            <div class="form-group pt-3">
+                <lable>备注</lable>
+                <input type="text" id="remarks" placeholder="备注" v-model="remarks" class="form-control">
+            </div>
+            <select ref="isAdmin">
+                <option value="-1">请选择身份</option>
+                <option value="0">
+                    普通员工
+                </option>
+                <option value="1">
+                    管理员
+                </option>
+            </select>
+            <button type="button" class="btn btn-success form-control mt-5" @click="addTeacher">注册</button>
+        </form>
+    </div>
+    <!-- 弹出层 -->
+    <div class="pop-up">
+        <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
+        <p>{{popMessage}}</p>
+    </div>
+
+</div>
+</body>
+<script src="/js/TeacherRegister.js" type="text/javascript" charset="utf-8"></script>
+</html>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.teacherinfo.dao.DegreeMapper">
+  <resultMap id="BaseResultMap" type="cn.teacherinfo.entity.Degree">
+    <id column="degree_id" jdbcType="INTEGER" property="degreeId" />
+    <result column="degree_name" jdbcType="VARCHAR" property="degreeName" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    degree_id, degree_name
+  </sql>
+  <select id="getDegreeList" resultType="cn.teacherinfo.entity.Degree">
+    select
+    <include refid="Base_Column_List"/>
+    from degree
+  </select>
+
+  <select id="selectPageDegree" resultType="cn.teacherinfo.entity.Degree">
+    select
+    <include refid="Base_Column_List" />
+    from degree
+  </select>
+
+  <select id="getDegreeByDegreeName" resultType="cn.teacherinfo.entity.Degree">
+    select
+    <include refid="Base_Column_List" />
+    from degree
+    <where>
+      <if test="degreeName!=null and ''!=degreeName">
+        and degree_name=#{degreeName}
+      </if>
+    </where>
+  </select>
+
+  <insert id="insert">
+    insert into degree values (null,#{degreeName});
+  </insert>
+
+  <update id="updateById">
+    update degree
+    <set>
+      <if test="degreeId != null">
+        degree_id = #{degreeId},
+      </if>
+      <if test="degreeName != null">
+        degree_name = #{degreeName},
+      </if>
+    </set>
+    where degree_id = #{degreeId}
+  </update>
+
+  <select id="count" resultType="java.lang.Integer">
+    select count(*) from degree
+  </select>
+
+  <delete id="deleteById">
+    DELETE FROM degree WHERE degree_id=#{degreeId}
+  </delete>
+</mapper>

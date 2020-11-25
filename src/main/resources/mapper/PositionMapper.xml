@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.teacherinfo.dao.PositionMapper">
+  <resultMap id="BaseResultMap" type="cn.teacherinfo.entity.Position">
+    <id column="position_id" jdbcType="INTEGER" property="positionId" />
+    <result column="position_name" jdbcType="VARCHAR" property="positionName" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    position_id, position_name
+  </sql>
+  <select id="getPositionList" resultType="cn.teacherinfo.entity.Position">
+    select
+    <include refid="Base_Column_List"/>
+    from position
+  </select>
+
+  <select id="selectPagePosition" resultType="cn.teacherinfo.entity.Position">
+    select
+    <include refid="Base_Column_List" />
+    from position
+  </select>
+
+  <select id="getPositionByPositionName" resultType="cn.teacherinfo.entity.Position">
+    select
+    <include refid="Base_Column_List" />
+    from position
+    <where>
+      <if test="positionName!=null and ''!=positionName">
+        and position_name=#{positionName}
+      </if>
+    </where>
+  </select>
+
+  <insert id="insert">
+    insert into position values (null,#{positionName});
+  </insert>
+
+  <update id="updateById">
+    update position
+    <set>
+      <if test="positionId != null">
+        position_id = #{positionId},
+      </if>
+      <if test="positionName != null">
+        position_name = #{positionName},
+      </if>
+    </set>
+    where position_id = #{positionId}
+  </update>
+
+  <select id="count" resultType="java.lang.Integer">
+    select count(*) from position
+  </select>
+
+  <delete id="deleteById">
+    DELETE FROM position WHERE position_id=#{positionId}
+  </delete>
+</mapper>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.teacherinfo.dao.QualificationMapper">
+  <resultMap id="BaseResultMap" type="cn.teacherinfo.entity.Qualification">
+    <id column="qualification_id" jdbcType="INTEGER" property="qualificationId" />
+    <result column="qualification_name" jdbcType="VARCHAR" property="qualificationName" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    qualification_id, qualification_name
+  </sql>
+  <select id="getQualificationList" resultType="cn.teacherinfo.entity.Qualification">
+    select
+    <include refid="Base_Column_List"/>
+    from qualification
+  </select>
+
+  <select id="selectPageQualification" resultType="cn.teacherinfo.entity.Qualification">
+    select
+    <include refid="Base_Column_List" />
+    from qualification
+  </select>
+
+  <select id="getQualificationByqualificationName" resultType="cn.teacherinfo.entity.Qualification">
+    select
+    <include refid="Base_Column_List" />
+    from qualification
+    <where>
+      <if test="qualificationName!=null and ''!=qualificationName">
+        and qualification_name=#{qualificationName}
+      </if>
+    </where>
+  </select>
+
+  <insert id="insert">
+    insert into qualification values (null,#{qualificationName});
+  </insert>
+
+  <update id="updateById">
+    update qualification
+    <set>
+      <if test="qualificationId != null">
+        qualification_id = #{qualificationId},
+      </if>
+      <if test="qualificationName != null">
+        qualification_name = #{qualificationName},
+      </if>
+    </set>
+    where qualification_id = #{qualificationId}
+  </update>
+
+  <select id="count" resultType="java.lang.Integer">
+    select count(*) from qualification
+  </select>
+
+  <delete id="deleteById">
+    DELETE FROM qualification WHERE qualification_id=#{qualificationId}
+  </delete>
+</mapper>

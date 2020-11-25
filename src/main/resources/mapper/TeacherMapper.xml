@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.teacherinfo.dao.TeacherMapper">
+  <resultMap id="BaseResultMap" type="cn.teacherinfo.entity.Teacher">
+    <id column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="user_sex" property="userSex" />
+    <result column="user_birthday" property="userBirthday" />
+    <result column="user_workhours" property="userWorkhours" />
+    <result column="user_joinparty" property="userJoinparty" />
+    <result column="user_identity" property="userIdentity" />
+    <result column="user_address" property="userAddress" />
+    <result column="user_email" property="userEmail" />
+    <result column="user_phone" property="userPhone" />
+    <result column="title_id" property="titleId" />
+    <result column="title_time" property="titleTime" />
+    <result column="position_id" property="positionId" />
+    <result column="qualification_id" property="qualificationId" />
+    <result column="subject_id" property="subjectId" />
+    <result column="contract_id" property="contractId" />
+    <result column="contract_starttime" property="contractStarttime" />
+    <result column="contract_endtime" property="contractEndtime" />
+    <result column="education_first_name" property="educationFirstName" />
+    <result column="education_first_school" property="educationFirstSchool" />
+    <result column="education_first_professional_name" property="educationFirstProfessionalName" />
+    <result column="education_first_graduationtime" property="educationFirstGraduationtime" />
+    <result column="degree_id" property="degreeId" />
+    <result column="education_highest_name" property="educationHighestName" />
+    <result column="education_highest_school" property="educationHighestSchool" />
+    <result column="education_highest_professional_name" property="educationHighestProfessionalName" />
+    <result column="education_highest_graduationtime" property="educationHighestGraduationtime" />
+    <result column="remarks" property="remarks" />
+    <result column="session_id" property="sessionId"/>
+    <result column="is_admin" property="isAdmin"/>
+    <association property="title" javaType="cn.teacherinfo.entity.Title">
+      <id property="titleId" column="title_id"/>
+      <result property="titleName" column="title_name"/>
+    </association>
+    <association property="subject" javaType="cn.teacherinfo.entity.Subject">
+      <id property="subjectId" column="subject_id"/>
+      <result property="subjectName" column="subject_name"/>
+    </association>
+    <association property="qualification" javaType="cn.teacherinfo.entity.Qualification">
+      <id property="qualificationId" column="qualification_id"/>
+      <result property="qualificationName" column="qualification_name"/>
+    </association>
+    <association property="position" javaType="cn.teacherinfo.entity.Position">
+      <id property="positionId" column="position_id"/>
+      <result property="positionName" column="position_name"/>
+    </association>
+    <association property="degree" javaType="cn.teacherinfo.entity.Degree">
+      <id property="degreeId" column="degree_id"/>
+      <result property="degreeName" column="degree_name"/>
+    </association>
+    <association property="contract" javaType="cn.teacherinfo.entity.Contract">
+      <id property="contractId" column="contract_id"/>
+      <result property="contractName" column="contract_name"/>
+    </association>
+  </resultMap>
+  <sql id="Base_Column_List">
+    user_id, user_name, user_sex, user_birthday, user_workhours, user_joinparty, user_identity,
+    user_address, user_email, user_phone, title_id, title_time,
+    position_id, title_certificate, qualification_id, subject_id,
+    contract_id, contract_starttime, contract_endtime, education_first_name, education_first_school,
+    education_first_graduationtime,
+    degree_id, education_highest_name, education_highest_school,
+    education_highest_graduationtime, remarks,session_id,is_admin
+  </sql>
+
+  <sql id="StudentAllInfo">
+    user_id,user_name,user_sex,user_birthday,user_workhours,user_joinparty,
+    user_identity,user_address,user_email,user_phone, title_name,title_time,
+    position_name,qualification_name,subject_name,
+    contract_name,contract_starttime,contract_endtime,
+    education_first_name, education_first_school,
+    education_first_professional_name,
+    education_first_graduationtime,degree_name,
+    education_highest_name, education_highest_school,
+    education_highest_professional_name,
+    education_highest_graduationtime,remarks,session_id,is_admin
+  </sql>
+
+  <select id="selectAll" resultMap="BaseResultMap">
+    SELECT
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="StudentAllInfo"/>
+    FROM teacher
+    LEFT JOIN title ON teacher.`title_id`= title.`title_id`
+    LEFT JOIN contract ON teacher.`contract_id`=contract.`contract_id`
+    LEFT JOIN `position` ON teacher.`position_id`=position.`position_id`
+    LEFT JOIN `subject` ON teacher.`subject_id`=subject.`subject_id`
+    LEFT JOIN qualification ON teacher.`qualification_id`=qualification.`qualification_id`
+    LEFT JOIN degree on teacher.degree_id=degree.degree_id
+    ORDER BY teacher.user_id
+  </select>
+
+  <select id="selectPageTeacher" resultMap="BaseResultMap">
+    SELECT
+    <include refid="StudentAllInfo"/>
+    FROM teacher
+    LEFT JOIN title ON teacher.`title_id`= title.`title_id`
+    LEFT JOIN contract ON teacher.`contract_id`=contract.`contract_id`
+    LEFT JOIN `position` ON teacher.`position_id`=position.`position_id`
+    LEFT JOIN `subject` ON teacher.`subject_id`=subject.`subject_id`
+    LEFT JOIN qualification ON teacher.`qualification_id`=qualification.`qualification_id`
+    LEFT JOIN degree on teacher.degree_id=degree.degree_id
+    <where>
+      <if test="userName!=null and ''!=userName">
+        and teacher.user_name like concat('%',#{userName},'%')
+      </if>
+      <if test="subjectId!=null and subjectId>0">
+        and teacher.subject_id=#{subjectId}
+      </if>
+      <if test="isAdmin!=null and isAdmin>-1">
+        and is_admin=#{isAdmin}
+      </if>
+      <if test="titleId!=null and titleId>0">
+        and teacher.title_id=#{titleId}
+      </if>
+      <if test="qualificationId!=null and qualificationId>0">
+        and teacher.qualification_id=#{qualificationId}
+      </if>
+      <if test="degreeId!=null and degreeId>0">
+        and teacher.degree_id=#{degreeId}
+      </if>
+    </where>
+    order by teacher.is_admin
+  </select>
+
+  <select id="selectInfoByIdentity" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM teacher
+    <where>
+      <if test="userName !=null and ''!=userName">
+        and teacher.`user_name`=#{userName}
+      </if>
+      <if test="userIdentity !=null and ''!=userIdentity">
+        and teacher.user_identity=#{userIdentity}
+      </if>
+    </where>
+  </select>
+
+
+  <select id="findTeacherByidentity" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM teacher
+    <where>
+      <if test="userIdentity !=null and ''!=userIdentity">
+        and teacher.user_identity=#{userIdentity}
+      </if>
+    </where>
+  </select>
+
+  <!--有选择的添加信息-->
+  <insert id="insertSelective" parameterType="cn.teacherinfo.entity.Teacher">
+    insert into teacher
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="userName != null">
+        user_name,
+      </if>
+      <if test="userSex != null">
+        user_sex,
+      </if>
+      <if test="userBirthday != null">
+        user_birthday,
+      </if>
+      <if test="userWorkhours != null">
+        user_workhours,
+      </if>
+      <if test="userJoinparty != null">
+        user_joinparty,
+      </if>
+      <if test="userIdentity != null">
+        user_identity,
+      </if>
+      <if test="userAddress != null">
+        user_address,
+      </if>
+      <if test="userEmail != null">
+        user_email,
+      </if>
+      <if test="userPhone != null">
+        user_phone,
+      </if>
+      <if test="titleId != null">
+        title_id,
+      </if>
+      <if test="titleTime != null">
+        title_time,
+      </if>
+      <if test="positionId != null">
+        position_id,
+      </if>
+      <if test="qualificationId != null">
+        qualification_id,
+      </if>
+      <if test="subjectId != null">
+        subject_id,
+      </if>
+      <if test="contractId != null">
+        contract_id,
+      </if>
+      <if test="contractStarttime != null">
+        contract_starttime,
+      </if>
+      <if test="contractEndtime != null">
+        contract_endtime,
+      </if>
+      <if test="educationFirstName != null">
+        education_first_name,
+      </if>
+      <if test="educationFirstSchool != null">
+        education_first_school,
+      </if>
+      <if test="educationFirstProfessionalName != null">
+        education_first_professional_name,
+      </if>
+      <if test="educationFirstGraduationtime != null">
+        education_first_graduationtime,
+      </if>
+      <if test="degreeId != null">
+        degree_id,
+      </if>
+      <if test="educationHighestName != null">
+        education_highest_name,
+      </if>
+      <if test="educationHighestSchool != null">
+        education_highest_school,
+      </if>
+      <if test="educationHighestProfessionalName != null">
+        education_highest_professional_name,
+      </if>
+      <if test="educationHighestGraduationtime != null">
+        education_highest_graduationtime,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+      <if test="isAdmin != null">
+        is_admin,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        null,
+      </if>
+      <if test="userName != null">
+        #{userName},
+      </if>
+      <if test="userSex != null">
+        #{userSex},
+      </if>
+      <if test="userBirthday != null">
+        #{userBirthday},
+      </if>
+      <if test="userWorkhours != null">
+        #{userWorkhours},
+      </if>
+      <if test="userJoinparty != null">
+        #{userJoinparty},
+      </if>
+      <if test="userIdentity != null">
+        #{userIdentity},
+      </if>
+      <if test="userAddress != null">
+        #{userAddress},
+      </if>
+      <if test="userEmail != null">
+        #{userEmail},
+      </if>
+      <if test="userPhone != null">
+        #{userPhone},
+      </if>
+      <if test="titleId != null">
+        #{titleId},
+      </if>
+      <if test="titleTime != null">
+        #{titleTime},
+      </if>
+      <if test="positionId != null">
+        #{positionId},
+      </if>
+      <if test="qualificationId != null">
+        #{qualificationId},
+      </if>
+      <if test="subjectId != null">
+        #{subjectId},
+      </if>
+      <if test="contractId != null">
+        #{contractId},
+      </if>
+      <if test="contractStarttime != null">
+        #{contractStarttime},
+      </if>
+      <if test="contractEndtime != null">
+        #{contractEndtime},
+      </if>
+      <if test="educationFirstName != null">
+        #{educationFirstName},
+      </if>
+      <if test="educationFirstSchool != null">
+        #{educationFirstSchool},
+      </if>
+      <if test="educationFirstProfessionalName != null">
+        #{educationFirstProfessionalName},
+      </if>
+      <if test="educationFirstGraduationtime != null">
+        #{educationFirstGraduationtime},
+      </if>
+      <if test="degreeId != null">
+        #{degreeId},
+      </if>
+      <if test="educationHighestName != null">
+        #{educationHighestName},
+      </if>
+      <if test="educationHighestSchool != null">
+        #{educationHighestSchool},
+      </if>
+      <if test="educationHighestProfessionalName != null">
+        #{educationHighestProfessionalName},
+      </if>
+      <if test="educationHighestGraduationtime != null">
+        #{educationHighestGraduationtime},
+      </if>
+      <if test="remarks != null">
+        #{remarks},
+      </if>
+      <if test="isAdmin != null">
+        #{isAdmin},
+      </if>
+    </trim>
+  </insert>
+  <!--根据条件查询总数-->
+  <select id="count" resultType="java.lang.Integer">
+    select count(*) from teacher as teacher
+    left join subject on teacher.subject_id=subject.subject_id
+    <where>
+      <if test="userName !=null and ''!=userName">
+        and teacher.user_name like concat('%',#{userName},'%')
+      </if>
+      <if test="subjectId !=null and subjectId>0">
+        and subject.subject_id=#{subjectId}
+      </if>
+      <if test="isAdmin!=null and isAdmin>-1">
+        and is_admin=#{isAdmin}
+      </if>
+      <if test="titleId!=null and titleId>0">
+        and teacher.title_id=#{titleId}
+      </if>
+      <if test="qualificationId!=null and qualificationId>0">
+        and teacher.qualification_id=#{qualificationId}
+      </if>
+      <if test="degreeId!=null and degreeId>0">
+        and teacher.degree_id=#{degreeId}
+      </if>
+    </where>
+  </select>
+  <!--根据主键有选择的修改信息-->
+  <update id="updateByIdSelective">
+    update teacher
+    <set>
+      <if test="userName != null">
+        user_name = #{userName},
+      </if>
+      <if test="userSex != null">
+        user_sex = #{userSex},
+      </if>
+      <if test="userBirthday != null">
+        user_birthday = #{userBirthday},
+      </if>
+      <if test="userWorkhours != null">
+        user_workhours = #{userWorkhours},
+      </if>
+      <if test="userJoinparty != null">
+        user_joinparty = #{userJoinparty},
+      </if>
+      <if test="userIdentity != null">
+        user_identity = #{userIdentity},
+      </if>
+      <if test="userAddress != null">
+        user_address = #{userAddress},
+      </if>
+      <if test="userEmail != null">
+        user_email = #{userEmail},
+      </if>
+      <if test="userPhone != null">
+        user_phone = #{userPhone},
+      </if>
+      <if test="titleId != null">
+        title_id = #{titleId},
+      </if>
+      <if test="titleTime != null">
+        title_time = #{titleTime},
+      </if>
+      <if test="positionId != null">
+        position_id = #{positionId},
+      </if>
+      <if test="qualificationId != null">
+        qualification_id = #{qualificationId},
+      </if>
+      <if test="subjectId != null">
+        subject_id = #{subjectId},
+      </if>
+      <if test="contractId != null">
+        contract_id = #{contractId},
+      </if>
+      <if test="contractStarttime != null">
+        contract_starttime = #{contractStarttime},
+      </if>
+      <if test="contractEndtime != null">
+        contract_endtime = #{contractEndtime},
+      </if>
+      <if test="educationFirstName != null">
+        education_first_name = #{educationFirstName},
+      </if>
+      <if test="educationFirstSchool != null">
+        education_first_school = #{educationFirstSchool},
+      </if>
+      <if test="educationFirstProfessionalName != null">
+        education_first_professional_name = #{educationFirstProfessionalName},
+      </if>
+      <if test="educationFirstGraduationtime != null">
+        education_first_graduationtime = #{educationFirstGraduationtime},
+      </if>
+      <if test="degreeId != null">
+        degree_id = #{degreeId},
+      </if>
+      <if test="educationHighestName != null">
+        education_highest_name = #{educationHighestName},
+      </if>
+      <if test="educationHighestSchool != null">
+        education_highest_school = #{educationHighestSchool},
+      </if>
+      <if test="educationHighestProfessionalName != null">
+        education_highest_professional_name = #{educationHighestProfessionalName},
+      </if>
+      <if test="educationHighestGraduationtime != null">
+        education_highest_graduationtime = #{educationHighestGraduationtime},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks},
+      </if>
+      <if test="sessionId != null">
+        session_id = #{sessionId},
+      </if>
+      <if test="isAdmin !=null">
+        is_admin=#{isAdmin}
+      </if>
+    </set>
+    where user_id = #{userId}
+  </update>
+  <delete id="deleteById">
+    DELETE FROM teacher WHERE user_id=#{userId}
+  </delete>
+</mapper>
